@@ -21,6 +21,53 @@ app.use(bodyParser.json());
 var lions = [];
 var id = 0;
 
+app.get('/lions', function(req, res){
+  res.json(lions); //sends lions array
+});
+
+app.get('/lions/:id', function(req, res){
+  var lion = _.find(lions, {id: req.params.id});//use lodash_.find to  search in lions and request parameters that match id
+  res.json(lion || {}); //respond with id'd lion or empty array
+});
+
+app.post('/lions', function(req, res){
+  var lion = req.body;
+  id++;
+  lion.id = id + ''; //coerce id toString
+  lions.push(lion); //push lion to end of lions array
+  res.json(lion); //give that bad boy back.
+});
+
+app.put('/lions/:id', function (req, res){
+  var update = req.body; //stuff we want to update
+  if (update.id){ // if tryna update id
+    delete update.id; //delete that shit
+  }
+  var lion = _.findIndex(lions, {id: req.params.id}); // lodash_.findIndex fines array index in lions of matching id
+  //looking to see if this lion exists in array
+  if (!lions[lion]){ //if no match
+    res.send(); //send nothing back
+  }
+  else{
+    var updatedLion= _.assign(lions[lion], update);
+    //this is extending. takes two objects, merges the right into the left
+    res.json(updatedLion); //send it back
+  }
+});
+
+app.delete('/lions/:id', function (req, res){
+  var lion = _.findIndex(lions, {id: req.params.id}); //same as above
+  if (!lions[lion]){ //if no match
+    res.send(); //send nothing back
+  }
+  else{
+    var deletedLion = lions[lion];
+    lions.splice(lion, 1); //array.splice(start, deleteCount)
+    res.json(deletedLion)
+  }
+
+});
+
 // TODO: make the REST routes to perform CRUD on lions
 
 app.listen(3000);
